@@ -1,23 +1,86 @@
-// Wrap all code that interacts with the DOM in a call to jQuery to ensure that
-// the code isn't run until the browser has finished rendering all the elements
-// in the html.
-$(function () {
-  // TODO: Add a listener for click events on the save button. This code should
-  // use the id in the containing time-block as a key to save the user input in
-  // local storage. HINT: What does `this` reference in the click listener
-  // function? How can DOM traversal be used to get the "hour-x" id of the
-  // time-block containing the button that was clicked? How might the id be
-  // useful when saving the description in local storage?
-  //
-  // TODO: Add code to apply the past, present, or future class to each time
-  // block by comparing the id to the current hour. HINTS: How can the id
-  // attribute of each time-block be used to conditionally add or remove the
-  // past, present, and future classes? How can Day.js be used to get the
-  // current hour in 24-hour time?
-  //
-  // TODO: Add code to get any user input that was saved in localStorage and set
-  // the values of the corresponding textarea elements. HINT: How can the id
-  // attribute of each time-block be used to do this?
-  //
-  // TODO: Add code to display the current date in the header of the page.
+var today = dayjs().format('dddd, MMM D, YYYY');
+$('#currentDay').text(today);
+
+const nineAM = dayjs().set('hour', 9).format('H');
+const nineam = document.getElementById("hour-9")
+
+const tenAM = dayjs().set('hour', 10).format('H');
+const tenam = document.getElementById("hour-10")
+
+const elevenAM = dayjs().set('hour', 11).format('H');
+const elevenam = document.getElementById("hour-11")
+
+const twelvePM = dayjs().set('hour', 12).format('H');
+const twelvepm = document.getElementById("hour-12")
+
+const onePM = dayjs().set('hour', 13).format('H');
+const onepm = document.getElementById("hour-13")
+
+const twoPM = dayjs().set('hour', 14).format('H');
+const twopm = document.getElementById("hour-14")
+
+const threePM = dayjs().set('hour', 15).format('H');
+const threepm = document.getElementById("hour-15")
+
+const fourPM = dayjs().set('hour', 16).format('H');
+const fourpm = document.getElementById("hour-16")
+
+const fivePM = dayjs().set('hour', 17).format('H');
+const fivepm = document.getElementById("hour-17")
+
+const workHours = [nineAM, tenAM, elevenAM, twelvePM, onePM, twoPM, threePM, fourPM, fivePM];
+const workHoursDisplay = [nineam, tenam, elevenam, twelvepm, onepm, twopm, threepm, fourpm, fivepm];
+
+
+function hourCheck() {
+  let currentHour = parseInt(dayjs().format('H'));
+
+  for (var i = 0; i < workHours.length; i++) {
+    if (workHours[i] == currentHour) {
+      workHoursDisplay[i].classList.add("present")
+    } else if (workHours[i] > currentHour) {
+      workHoursDisplay[i].classList.add("future")
+    } else if (workHours[i] < currentHour) {
+      workHoursDisplay[i].classList.add("past")
+    }
+  }
+}
+
+const saveBtn = document.querySelectorAll(".saveBtn");
+let textSaveArray = [];
+
+function saveEvent() {
+  const hourSave = $(this).parent().attr('id');
+  const textSave = $(this).parent().children('.description').val();
+
+  const saveArray = {
+    hourSelected: hourSave,
+    textSelected: textSave
+  };
+  textSaveArray.push(saveArray);
+
+  localStorage.setItem("storedText", JSON.stringify(textSaveArray));
+}
+
+function renderStorage() {
+  const storedText = JSON.parse(localStorage.getItem("storedText"));
+  if (storedText !== null) {
+    textSaveArray = storedText;
+
+    for(let j = 0; j < storedText.length; j++) {
+      let renderText = storedText[j];
+      let renderHour = renderText.hourSelected;
+      $('#' + renderHour).children('.description').val(renderText.textSelected);
+    }
+  }
+}
+
+saveBtn.forEach((button) => {
+  button.addEventListener("click", saveEvent);
 });
+
+
+window.onload = () => {
+  hourCheck();
+  renderStorage();
+}
